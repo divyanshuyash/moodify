@@ -1,0 +1,86 @@
+.hero-container{
+    /* background-color: black; */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.input-container{
+    /* background-color: white; */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 20vh;
+}
+
+.input-box{
+    background-color: transparent;
+    padding: 20px;
+    font-size: 3vh;
+    border-radius: 10px;
+    color: white;
+    border: 1px solid rgb(179, 179, 179);
+    width: 35vw;
+    margin: 5px;
+
+}
+
+.send-button{
+    background-color: transparent;
+    padding: 20px;
+    border-radius: 10px;
+    font-size: 3vh;
+    border: 1px solid rgb(179, 179, 179);
+}
+
+.send-button:hover{
+    cursor: pointer;
+    background-color: #103250;
+}
+
+
+.playlist-container{
+    /* background-color: white; */
+    height: 100%;
+    width: 45vw;
+    padding: 40px;;
+}
+
+@media screen and (max-width: 1000px){
+    .input-container{
+        width: 60vw;
+    }
+    .input-box{
+        width: 50vw;
+    }
+    .playlist-container{
+        width: 60vw;
+    }
+}
+
+
+@media screen and (max-width: 500px){
+    .input-container{
+        width: 80vw;
+        /* display: flex; */
+        flex-direction: column;
+        margin-top: 10vh;
+        margin-bottom: 5vh;
+    }
+    .playlist-container{
+        width: 80vw;
+        
+    }
+    .input-box{
+        width: 70vw;
+        margin-bottom: 2vh;
+    }
+    
+}
+
+.song-embed{
+    margin: 7px;
+}
