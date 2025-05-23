@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import './Hero.css'
+import "./Hero.css";
 import Song from "./Song";
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-
 export default function Hero() {
   const [prompt, setPrompt] = useState("");
-  const [playlist, setPlaylist] = useState("Tell us how you're feeling and we'll generate a playlist for you! 😼");
+  const [playlist, setPlaylist] = useState(
+    "Tell us how you're feeling and we'll generate a playlist for you! 😼"
+  );
   const [IsDisabled, setIsDisabled] = useState(false);
 
   // spotify api code
@@ -17,7 +18,7 @@ export default function Hero() {
   const getSpotifyToken = async () => {
     const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
     const clientSecret = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET;
-  
+
     const response = await fetch("https://accounts.spotify.com/api/token", {
       method: "POST",
       headers: {
@@ -26,23 +27,25 @@ export default function Hero() {
       },
       body: "grant_type=client_credentials",
     });
-  
+
     const data = await response.json();
     return data.access_token;
   };
 
   const searchTrack = async (songName) => {
     const token = await getSpotifyToken();
-    
+
     const response = await fetch(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(songName)}&type=track&limit=1`,
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(
+        songName
+      )}&type=track&limit=1`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
-  
+
     const data = await response.json();
     if (data.tracks.items.length > 0) {
       return data.tracks.items[0].external_urls.spotify; // Returns track URL
@@ -50,17 +53,16 @@ export default function Hero() {
       return "Track not found";
     }
   };
-  
 
   // end spotify api code
 
-  function handleChange(e){
-    setPrompt(e.target.value)
+  function handleChange(e) {
+    setPrompt(e.target.value);
   }
 
-  async function handleClick(){
+  async function handleClick() {
     setIsDisabled(true);
-    setPlaylist("Loading... ⌛")
+    setPlaylist("Loading... ⌛");
 
     const aiprompt = `
     The user has described their mood as: "${prompt}".  
@@ -77,40 +79,60 @@ export default function Hero() {
     
     Provide a minimum of 5 and a maximum of 10 songs.
     `;
-     
+
     const result = await model.generateContent(aiprompt);
 
-    const songsArr = JSON.parse(result.response.text().replace(/```json|```/g, "").trim());
+    const songsArr = JSON.parse(
+      result.response
+        .text()
+        .replace(/```json|```/g, "")
+        .trim()
+    );
 
     const songUrls = songsArr.map(async (song) => {
       return await searchTrack(song);
-    }
-    );
+    });
 
     const resultArr = await Promise.all(songUrls);
 
-    setPlaylist(resultArr)
-    console.log(songsArr)
-    
-    setPrompt('')
+    setPlaylist(resultArr);
+    console.log(songsArr);
+
+    setPrompt("");
     setIsDisabled(false);
   }
 
   return (
     <div className="hero-container">
       <div className="input-container">
-        <input className="input-box" type="text" placeholder="Explain your mood 👀" value={prompt} onChange={(e)=>{handleChange(e)}} />
-        <button disabled={IsDisabled} className="send-button" onClick={()=>{handleClick()}}> 🔥 </button>
+        <input
+          className="input-box"
+          type="text"
+          placeholder="Explain your mood 👀"
+          value={prompt}
+          onChange={(e) => handleChange(e)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleClick(); // trigger button click
+            }
+          }}
+        />
+
+        <button
+          disabled={IsDisabled}
+          className="send-button"
+          onClick={() => {
+            handleClick();
+          }}
+        >
+          {" "}
+          🔥{" "}
+        </button>
       </div>
       <div className="playlist-container">
-
-
-      {Array.isArray(playlist) ? playlist.map((url, index) => (
-        <Song key={index} url={url} />
-      )) : playlist}
-
-      
-
+        {Array.isArray(playlist)
+          ? playlist.map((url, index) => <Song key={index} url={url} />)
+          : playlist}
       </div>
     </div>
   );
